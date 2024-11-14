@@ -5,34 +5,24 @@
 #define TEMPO_A 2
 #define TEMPO_B 3
 #define TEMPO_C 4
+#define A 0 // identificador Switch case. Depois mudar para nomes IO: impressora...
+#define B 1
+#define C 2
 
 int ler_processos(const char* nome_arquivo, Processo** processos);
-
-/* PARA LEMBRAR:
-// Definição da struct Processo
-    typedef struct Processo {
-        int id;
-        int tempo_chegada;
-        int burst_time;
-        int tempo_restante;
-        int prioridade;
-    } Processo;
-    
- */
-
 
 int main(int argc, char *argv[]) {
     int tempo = 0;
     int processos_concluidos = 0;
     int num_processos = 3;
-
+    int fez_io = 0;
 
     // Criação das filas
     Fila *fila_alta_prioridade = criar_fila();
     Fila *fila_baixa_prioridade = criar_fila();
     Fila *fila_io = criar_fila();
 
-    // Criar alguns processos
+    // Criar alguns processos /////////// Tem que sumir. Precisa vir de leitura de arquivo
     Processo processo1 = {1, 0, 5, 0, 1,2,0};
     Processo processo2 = {2, 2, 3, 0, 2,2,1};
     Processo processo3 = {3, 4, 8, 0, 3,5,2};
@@ -55,27 +45,158 @@ int main(int argc, char *argv[]) {
     /* ESCALONADOR ABAIXO */
     while(processos_concluidos<num_processos)
     {
-        /*
+        /* Carrega os processos NOVOS
         for (int i = 0; i < num_processos; i++) {
             if (processos[i].tempo_chegada == tempo && processos[i].tempo_restante > 0) {
-                inserir(&filas[], processos[i]);
+                inserir(fila_alta_prioridade, processos[i]);
                 printf("Processo %d chegou e foi adicionado à fila de alta prioridade em t=%d\n", processos[i].id, tempo);
             }
         }
-        */        
+        */    
+
+          /* Remover
+            if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[0]){
+                // Move o processo para a fila de I/O
+                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                inserir(fila_io, processo_executado);    
+
+            }
+            */
+
+           /* Antigo 
+            // Verifica se o processo precisa realizar I/O
+            if (processo_executado.tempo_executado == processo_executado.tempo_io) {
+                // Move o processo para a fila de I/O
+                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                inserir(fila_io, processo_executado);
+                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", processo_executado.id, processo_executado.tempo_executado);
+            */ 
+    
 
         if (!fila_vazia(fila_alta_prioridade)) {
             // Remove o primeiro processo da fila para simular a execução
             Processo processo_executado = remover(fila_alta_prioridade);
 
+            
+            fez_io=0;
+            for(int i=0;i<3;i++){
+                if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]){
+                    fez_io =1;
+                    switch(i) { //direcionar tipo de IO
+                        case 0: // A
+                                // Move o processo para a fila de I/O
+                                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                                inserir(fila_io, processo_executado);
+                                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
+                                            processo_executado.id, processo_executado.tempo_executado);
+                                break;                
+
+                        case 1: // B
+                                // Move o processo para a fila de I/O
+                                processo_executado.tempo_retorno_io = tempo + TEMPO_B;
+                                inserir(fila_io, processo_executado);
+                                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
+                                            processo_executado.id, processo_executado.tempo_executado);
+                                break;
+                        case 2: // C
+                                // Move o processo para a fila de I/O
+                                processo_executado.tempo_retorno_io = tempo + TEMPO_C;
+                                inserir(fila_io, processo_executado);
+                                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
+                                            processo_executado.id, processo_executado.tempo_executado);
+                                break;
+                    }
+                }   
+            }
+            
+            /* Remover
+            if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[0]){
+                // Move o processo para a fila de I/O
+                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                inserir(fila_io, processo_executado);    
+
+            }
+            */
+
+            /* Remover
+            // Verifica se o processo precisa realizar I/O
+            if (processo_executado.tempo_executado == processo_executado.tempo_io) {
+                // Move o processo para a fila de I/O
+                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                inserir(fila_io, processo_executado);
+                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", processo_executado.id, processo_executado.tempo_executado);
+            }
+            */    
+            
+            
+            if(fez_io == 0){
+                // Se não precisar de I/O, continua a execução normal
+                printf("Processo ID %d está sendo executado na Fila de Alta Prioridade em t=%d\n", processo_executado.id, tempo);
+
+                // Incrementa o tempo executado do processo
+                processo_executado.tempo_executado++;
+
+                // Verifica se o processo foi concluído
+                if (processo_executado.tempo_executado >= processo_executado.burst_time) {
+                    processos_concluidos++;
+                    printf("Processo ID %d concluído após %d ciclos de execução.\n", processo_executado.id, processo_executado.tempo_executado);
+                } else if (fila_vazia(fila_alta_prioridade)) { // retorna true se estiver vazia
+                    // Mantém o processo na fila de Alta Prioridade se ainda não foi concluído
+                    inserir(fila_alta_prioridade, processo_executado);
+                } else {
+                    // Insere o processo na fila de Baixa Prioridade se ainda não foi concluído
+                    inserir(fila_baixa_prioridade, processo_executado);
+                }
+            }
+        }
+
+        // Verifica se há processos na fila de baixa prioridade
+        else if (!fila_vazia(fila_baixa_prioridade)) {
+            // Remove o primeiro processo da fila de baixa prioridade
+            Processo processo_executado = remover(fila_baixa_prioridade);
+
+            /*
             // Verifica se o processo precisa realizar I/O
             if (processo_executado.tempo_executado == processo_executado.tempo_io) {
                 // Move o processo para a fila de I/O
                 inserir(fila_io, processo_executado);
                 printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", processo_executado.id, processo_executado.tempo_executado);
-            } else {
+            */
+            
+            fez_io=0;
+            for(int i=0;i<3;i++){
+                if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]){
+                    fez_io =1;
+                    switch(i) { //direcionar tipo de IO
+                        case 0: // A
+                                // Move o processo para a fila de I/O
+                                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                                inserir(fila_io, processo_executado);
+                                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
+                                            processo_executado.id, processo_executado.tempo_executado);
+                                break;                
+
+                        case 1: // B
+                                // Move o processo para a fila de I/O
+                                processo_executado.tempo_retorno_io = tempo + TEMPO_B;
+                                inserir(fila_io, processo_executado);
+                                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
+                                            processo_executado.id, processo_executado.tempo_executado);
+                                break;
+                        case 2: // C
+                                // Move o processo para a fila de I/O
+                                processo_executado.tempo_retorno_io = tempo + TEMPO_C;
+                                inserir(fila_io, processo_executado);
+                                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
+                                            processo_executado.id, processo_executado.tempo_executado);
+                                break;
+                    }
+                }   
+            }
+
+            if(fez_io == 0){
                 // Se não precisar de I/O, continua a execução normal
-                printf("Processo ID %d está sendo executado na Fila de Alta Prioridade em t=%d\n", processo_executado.id, tempo);
+                printf("Processo ID %d está sendo executado na Fila de Baixa Prioridade em t=%d\n", processo_executado.id, tempo);
 
                 // Incrementa o tempo executado do processo
                 processo_executado.tempo_executado++;
@@ -89,19 +210,9 @@ int main(int argc, char *argv[]) {
                     inserir(fila_baixa_prioridade, processo_executado);
                 }
             }
-        }
-
-        // Verifica se há processos na fila de baixa prioridade
-        if (!fila_vazia(fila_baixa_prioridade)) {
-            // Remove o primeiro processo da fila de baixa prioridade
-            Processo processo_executado = remover(fila_baixa_prioridade);
-
-            // Verifica se o processo precisa realizar I/O
-            if (processo_executado.tempo_executado == processo_executado.tempo_io) {
-                // Move o processo para a fila de I/O
-                inserir(fila_io, processo_executado);
-                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", processo_executado.id, processo_executado.tempo_executado);
-            } else {
+            
+            /*
+            else {
                 // Se não precisar de I/O, continua a execução normal
                 printf("Processo ID %d está sendo executado na Fila de Baixa Prioridade em t=%d\n", processo_executado.id, tempo);
 
@@ -117,6 +228,7 @@ int main(int argc, char *argv[]) {
                     inserir(fila_baixa_prioridade, processo_executado);
                 }
             }
+            */
         }
 
         // Verifica se há processos na fila de I/O
@@ -124,6 +236,42 @@ int main(int argc, char *argv[]) {
             // Remove o primeiro processo da fila de I/O
             Processo processo_executado = remover(fila_io);
 
+            /*
+            if (tempo == processo_executado.tempo_retorno_io){
+                    switch (atual_io){
+                    case 0:
+                        inserir(fila_baixa_prioridade, processo_executado);
+                        break;
+                    
+                    case 1: //as duas opções voltam p/ alta prioridade                
+                    case 2:
+                        inserir(fila_alta_prioridade, processo_executado);
+                        break;                
+                    }                    
+                }
+            */
+
+            No * no_atual = fila_io->frente;
+
+            do {
+                if (tempo == no_atual->processo.tempo_retorno_io){
+                    No * no_atual = no_atual->prox;
+
+                    Processo processo_executado = remover(fila_io); // USAR remover do AMAI
+                    switch (atual_io){
+                    case 0:
+                        inserir(fila_baixa_prioridade, processo_executado);
+                        break;
+                    
+                    case 1: //as duas opções voltam p/ alta prioridade                
+                    case 2:
+                        inserir(fila_alta_prioridade, processo_executado);
+                        break;                
+                    }                    
+                }
+            } while((no_atual = no_atual->prox) != NULL);
+
+            /*
             // Checa o tipo de I/O
             if (processo_executado.tipo_io == 'A') {
                 // Verifica se o tempo de execução ainda não ultrapassou o tempo necessário para I/O
@@ -164,6 +312,7 @@ int main(int argc, char *argv[]) {
                     }
                 }
             }
+            */
         }
 
     }
@@ -173,6 +322,9 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
+
+// ARQUIVO ARQUIVO ARQUIVO ARQUIVO ARQUIVO ARQUIVO
+//
 // Função para ler os processos de um arquivo txt
 /*
 int ler_processos(const char* nome_arquivo, Processo** processos) {

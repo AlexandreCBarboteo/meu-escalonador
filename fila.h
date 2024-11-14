@@ -8,9 +8,12 @@
         int tempo_chegada;
         int burst_time;
         int tempo_executado;
-        int prioridade;
-        int tempo_io; //array????????????
-        int tipo_io; // array??????????????
+        //int prioridade;
+        
+        int io[3];
+        int tempo_inicio_io[3]; 
+        int tempo_retorno_io;  
+        int atual_io; // juntar 
         
     } Processo;
     
@@ -32,4 +35,5 @@
     void inserir(Fila* fila, Processo processo);
     Processo remover(Fila* fila);
     void exibir_fila(Fila* fila);
+    //int tamanho_fila(Fila* fila);
 #endif  // FILA_H

@@ -1,0 +1,12 @@
+processo 1:
+tempo = 2 --> Io tipo A (3ut) --> retornar tempo=5
+
+tempo == processo_tempo_retorno_IO 
+
+
+
+
+
+ALTERAR:
+reduzir arrays --> um array indica o tempo de inicio IO. Cada posicao do array indica o tipo array
+colocar num laco for
