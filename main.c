@@ -53,31 +53,10 @@ int main(int argc, char *argv[]) {
             }
         }
         */    
-
-          /* Remover
-            if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[0]){
-                // Move o processo para a fila de I/O
-                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
-                inserir(fila_io, processo_executado);    
-
-            }
-            */
-
-           /* Antigo 
-            // Verifica se o processo precisa realizar I/O
-            if (processo_executado.tempo_executado == processo_executado.tempo_io) {
-                // Move o processo para a fila de I/O
-                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
-                inserir(fila_io, processo_executado);
-                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", processo_executado.id, processo_executado.tempo_executado);
-            */ 
-    
-
         if (!fila_vazia(fila_alta_prioridade)) {
             // Remove o primeiro processo da fila para simular a execução
             Processo processo_executado = remover(fila_alta_prioridade);
 
-            
             fez_io=0;
             for(int i=0;i<3;i++){
                 if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]){
@@ -108,26 +87,6 @@ int main(int argc, char *argv[]) {
                     }
                 }   
             }
-            
-            /* Remover
-            if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[0]){
-                // Move o processo para a fila de I/O
-                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
-                inserir(fila_io, processo_executado);    
-
-            }
-            */
-
-            /* Remover
-            // Verifica se o processo precisa realizar I/O
-            if (processo_executado.tempo_executado == processo_executado.tempo_io) {
-                // Move o processo para a fila de I/O
-                processo_executado.tempo_retorno_io = tempo + TEMPO_A;
-                inserir(fila_io, processo_executado);
-                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", processo_executado.id, processo_executado.tempo_executado);
-            }
-            */    
-            
             
             if(fez_io == 0){
                 // Se não precisar de I/O, continua a execução normal
@@ -154,14 +113,6 @@ int main(int argc, char *argv[]) {
         else if (!fila_vazia(fila_baixa_prioridade)) {
             // Remove o primeiro processo da fila de baixa prioridade
             Processo processo_executado = remover(fila_baixa_prioridade);
-
-            /*
-            // Verifica se o processo precisa realizar I/O
-            if (processo_executado.tempo_executado == processo_executado.tempo_io) {
-                // Move o processo para a fila de I/O
-                inserir(fila_io, processo_executado);
-                printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", processo_executado.id, processo_executado.tempo_executado);
-            */
             
             fez_io=0;
             for(int i=0;i<3;i++){
@@ -211,24 +162,6 @@ int main(int argc, char *argv[]) {
                 }
             }
             
-            /*
-            else {
-                // Se não precisar de I/O, continua a execução normal
-                printf("Processo ID %d está sendo executado na Fila de Baixa Prioridade em t=%d\n", processo_executado.id, tempo);
-
-                // Incrementa o tempo executado do processo
-                processo_executado.tempo_executado++;
-
-                // Verifica se o processo foi concluído
-                if (processo_executado.tempo_executado >= processo_executado.burst_time) {
-                    processos_concluidos++;
-                    printf("Processo ID %d concluído após %d ciclos de execução.\n", processo_executado.id, processo_executado.tempo_executado);
-                } else {
-                    // Reinsere o processo na fila de baixa prioridade se ainda não foi concluído
-                    inserir(fila_baixa_prioridade, processo_executado);
-                }
-            }
-            */
         }
 
         // Verifica se há processos na fila de I/O
@@ -270,51 +203,7 @@ int main(int argc, char *argv[]) {
                     }                    
                 }
             } while((no_atual = no_atual->prox) != NULL);
-
-            /*
-            // Checa o tipo de I/O
-            if (processo_executado.tipo_io == 'A') {
-                // Verifica se o tempo de execução ainda não ultrapassou o tempo necessário para I/O
-                if (processo_executado.tempo_executado < processo_executado.tempo_io + TEMPO_A) {
-                    // Avança o tempo de execução
-                    processo_executado.tempo_executado++;
-
-                    // Verifica se o I/O foi concluído
-                    if (processo_executado.tempo_executado == processo_executado.tempo_io + TEMPO_A) {
-                        inserir(fila_alta_prioridade, processo_executado);
-                        printf("Processo ID %d completou I/O (Tipo A) e retornou para a Fila de Alta Prioridade.\n", processo_executado.id);
-                    }
-                }
-            }
-            else if (processo_executado.tipo_io == 'B') {
-                // Verifica se o tempo de execução ainda não ultrapassou o tempo necessário para I/O
-                if (processo_executado.tempo_executado < processo_executado.tempo_io + TEMPO_B) {
-                    // Avança o tempo de execução
-                    processo_executado.tempo_executado++;
-
-                    // Verifica se o I/O foi concluído
-                    if (processo_executado.tempo_executado == processo_executado.tempo_io + TEMPO_B) {
-                        inserir(fila_alta_prioridade, processo_executado);
-                        printf("Processo ID %d completou I/O (Tipo B) e retornou para a Fila de Alta Prioridade.\n", processo_executado.id);
-                    }
-                }
-            }
-            else if (processo_executado.tipo_io == 'C') {
-                // Verifica se o tempo de execução ainda não ultrapassou o tempo necessário para I/O
-                if (processo_executado.tempo_executado < processo_executado.tempo_io + TEMPO_C) {
-                    // Avança o tempo de execução
-                    processo_executado.tempo_executado++;
-
-                    // Verifica se o I/O foi concluído
-                    if (processo_executado.tempo_executado == processo_executado.tempo_io + TEMPO_C) {
-                        inserir(fila_baixa_prioridade, processo_executado);
-                        printf("Processo ID %d completou I/O (Tipo C) e retornou para a Fila de Baixa Prioridade.\n", processo_executado.id);
-                    }
-                }
-            }
-            */
         }
-
     }
 
     /* ESCALONADOR ACIMA */
