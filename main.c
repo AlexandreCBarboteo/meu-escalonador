@@ -65,6 +65,7 @@ int main(int argc, char *argv[]) {
                         case 0: // A
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                                processo_executado.atual_io = 0; 
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
@@ -73,6 +74,7 @@ int main(int argc, char *argv[]) {
                         case 1: // B
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_B;
+                                processo_executado.atual_io = 1;
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
@@ -80,6 +82,7 @@ int main(int argc, char *argv[]) {
                         case 2: // C
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_C;
+                                processo_executado.atual_io = 2;
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
@@ -122,6 +125,7 @@ int main(int argc, char *argv[]) {
                         case 0: // A
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_A;
+                                processo_executado.atual_io = 0;
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
@@ -130,6 +134,7 @@ int main(int argc, char *argv[]) {
                         case 1: // B
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_B;
+                                processo_executado.atual_io = 1;
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
@@ -137,6 +142,7 @@ int main(int argc, char *argv[]) {
                         case 2: // C
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_C;
+                                processo_executado.atual_io = 2;
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
@@ -191,7 +197,7 @@ int main(int argc, char *argv[]) {
                     No * no_atual = no_atual->prox;
 
                     Processo processo_executado = remover(fila_io); // USAR remover do AMAI
-                    switch (atual_io){
+                    switch (processo_executado.atual_io){
                     case 0:
                         inserir(fila_baixa_prioridade, processo_executado);
                         break;
