@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "fila.h"
 
-#define DISCO 0 // Identifica Tipos de I/O. Usado nos Switch Cases
+#define DISCO 0 // Identifica Tipos de I/O. Usado nos Switch Cases e ternários
 #define FITA 1
 #define IMPRESSORA 2
 
@@ -10,9 +10,12 @@
 #define TEMPO_FITA 1
 #define TEMPO_IMPRESSORA 1
 
-#define FALSE 0
+#define FALSE 0 
 #define TRUE 1
 #define NONE -1
+
+#define ALTA 0    // ADICIONAR COMENTARIO DEPOIS
+#define BAIXA 1
 
 int ler_processos(const char* nome_arquivo, Processo** processos);
 void carregar_processos_iniciais(Fila* fila_alta_prioridade, Processo* processos, int num_processos, int tempo);
@@ -50,7 +53,7 @@ int main(int argc, char *argv[]) {
         if (!fila_vazia(fila_alta_prioridade)) {
             // Remove o primeiro processo da fila para simular a execução
             Processo processo_executado = remover(fila_alta_prioridade);
-            processo_executado.fila_origem = 0;
+            processo_executado.fila_origem = ALTA;
             if (fila_vazia(fila_alta_prioridade)){ // Volta para a fila de alta prioridade após ser executado
                 executar_processo(&processo_executado, fila_alta_prioridade, fila_alta_prioridade, fila_io, tempo, 
                 &processos_concluidos);
@@ -62,13 +65,13 @@ int main(int argc, char *argv[]) {
         } else if (!fila_vazia(fila_baixa_prioridade)) {
             // Executar processo de baixa prioridade, se não houver de alta
             Processo processo_executado = remover(fila_baixa_prioridade);
-            processo_executado.fila_origem = 1;
+            processo_executado.fila_origem = BAIXA;
             executar_processo(&processo_executado, fila_baixa_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos);
         }
 
         // Tratar processos na fila de I/O
         tratar_io(fila_io, fila_alta_prioridade, fila_baixa_prioridade, tempo);
-        printf("\n");
+        //printf("\n");
         tempo++;
     }
     printf("Escalonador Encerrou depois de %d ut\n", --tempo);
@@ -108,8 +111,8 @@ void executar_processo(Processo* processo_ptr, Fila* fila_origem, Fila* fila_des
             inserir(fila_io, processo_executado);
             printf("Processo ID %d movido da fila de %s para I/O (tipo %s) após executar por %d ciclos.\n",
                 processo_executado.id,
-                (processo_executado.fila_origem == 0 ? "ALTA" : "BAIXA"),
-                (i == 0 ? "DISCO" : (i == 1 ? "FITA" : "IMPRESSORA")),
+                (processo_executado.fila_origem == ALTA ? "ALTA" : "BAIXA"),
+                (i == ALTA ? "DISCO" : (i == BAIXA ? "FITA" : "IMPRESSORA")),
                 processo_executado.tempo_executado);
             fez_io = TRUE;
             break;
@@ -120,11 +123,13 @@ void executar_processo(Processo* processo_ptr, Fila* fila_origem, Fila* fila_des
         processo_executado.tempo_executado++;
         printf("Processo ID %d está sendo executado na Fila de %s prioridade\n", 
             processo_executado.id, 
-            (processo_executado.fila_origem == 0 ? "ALTA" : "BAIXA"));
+            (processo_executado.fila_origem == ALTA ? "ALTA" : "BAIXA"));
         
         if (processo_executado.tempo_executado >= processo_executado.tempo_servico) {
             (*processos_concluidos)++;
-            printf("Processo ID %d concluído após %d ciclos de execução.\n", processo_executado.id, processo_executado.tempo_executado);
+            printf("Processo ID %d concluído após %d ciclos de execução.\n",
+                processo_executado.id,
+                processo_executado.tempo_executado);
         } else {
             inserir(fila_destino, processo_executado);
         }
@@ -141,14 +146,14 @@ void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prior
         Processo processo_io = remover(fila_io);
         if (tempo == processo_io.tempo_retorno_io) {
             //printf("tempo igual ao retorno do i/o\n");
-            if (processo_io.atual_io == 0) {
+            if (processo_io.atual_io == DISCO) {
                     inserir(fila_baixa_prioridade, processo_io);
             } else {
                 inserir(fila_alta_prioridade, processo_io);
             }
-                printf("Processo ID %d voltou do I/O (%s)\n", 
-                processo_io.id, 
-                (processo_io.atual_io == 0 ? "DISCO" : (processo_io.atual_io == 1 ? "FITA" : "IMPRESSORA")));
+                printf("Processo ID %d voltou do I/O (tipo %s)\n", 
+                    processo_io.id, 
+                    (processo_io.atual_io == DISCO ? "DISCO" : (processo_io.atual_io == FITA ? "FITA" : "IMPRESSORA")));
             } else {
                 inserir(fila_io, processo_io);
             }

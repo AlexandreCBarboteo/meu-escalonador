@@ -234,7 +234,7 @@ int main(int argc, char *argv[]) {
         }
         tempo++;
     }
-    printf("Escalonador Encerrou depois de %d ut\n", tempo);
+    printf("Escalonador Encerrou depois de %d ut\n", --tempo);
 
     /* ESCALONADOR ACIMA */
 
