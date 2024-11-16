@@ -15,6 +15,8 @@
 #define NONE -1
 
 int ler_processos(const char* nome_arquivo, Processo** processos);
+void carregar_processos_iniciais(Fila* fila_alta_prioridade, Processo* processos, int num_processos, int tempo);
+void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, int tempo);
 
 int main(int argc, char *argv[]) {
     int tempo = 0;
@@ -26,18 +28,6 @@ int main(int argc, char *argv[]) {
     Fila *fila_alta_prioridade = criar_fila();
     Fila *fila_baixa_prioridade = criar_fila();
     Fila *fila_io = criar_fila();
-
-   /* TEM QUE SAIR
-    // Criar alguns processos /////////// Tem que sumir. Precisa vir de leitura de arquivo
-    Processo processo1 = {};
-    Processo processo2 = {};
-    Processo processo3 = {};
-
-    // Inserir os processos na fila
-    inserir(fila_alta_prioridade, processo1);
-    inserir(fila_alta_prioridade, processo2);
-    inserir(fila_alta_prioridade, processo3);
-   */
     
     // Carregar processos de um arquivo txt
     Processo* processos = NULL;
@@ -52,29 +42,17 @@ int main(int argc, char *argv[]) {
     /* ESCALONADOR ABAIXO */
     while(processos_concluidos<num_processos)
     {
-        printf("TEMPO %d\n", tempo);
+        printf("\nINSTANTE %d:\n", tempo);
+        carregar_processos_iniciais(fila_alta_prioridade, processos, num_processos, tempo);
 
-        // Carrega os processos NOVOS
-        for (int i = 0; i < num_processos; i++) {
-            if (processos[i].tempo_chegada == tempo /*&& processos[i].tempo_restante > 0*/) {
-                inserir(fila_alta_prioridade, processos[i]);
-                printf("Processo %d chegou e foi adicionado à fila de alta prioridade em t=%d\n", processos[i].id, tempo);
-            }
-        }
-            
+        //ALTA PRIORIDADE:   
         if (!fila_vazia(fila_alta_prioridade)) {
             // Remove o primeiro processo da fila para simular a execução
             Processo processo_executado = remover(fila_alta_prioridade);
-
             fez_io=FALSE;
-            int teste_alta=FALSE; // teste
             for(int i=0;i<3;i++){
-                if (teste_alta==TRUE){
-                    printf("Saí do for\n"); // teste
-                    break;
-                }
                 if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]){
-                    printf("TEMPO EXECUTADO = %d", processo_executado.tempo_executado);
+                    //printf("TEMPO EXECUTADO = %d\n", processo_executado.tempo_executado);
                     fez_io =TRUE;
                     switch(i) { //direcionar tipo de IO
                         case DISCO: // A
@@ -86,10 +64,8 @@ int main(int argc, char *argv[]) {
                                 printf("Processo ID %d movido da ALTA  para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
                                 // teste:
-                                printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io); 
-                                teste_alta=TRUE;
+                                //printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io); 
                                 break;                
-
                         case FITA: // B
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_FITA;
@@ -98,8 +74,7 @@ int main(int argc, char *argv[]) {
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido da ALTA  para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
-                                printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io);
-                                teste_alta=TRUE;
+                                //printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io);
                                 break;
                         case IMPRESSORA: // C
                                 // Move o processo para a fila de I/O
@@ -109,21 +84,17 @@ int main(int argc, char *argv[]) {
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido da ALTA  para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
-                                printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io);
-                                teste_alta=TRUE;
+                                //printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io);
                                 break;
                     }
                 }   
             }
             
-            
             if(fez_io == FALSE){
                 // Se não precisar de I/O, continua a execução normal
                 printf("Processo ID %d está sendo executado na Fila de Alta Prioridade em t=%d\n", processo_executado.id, tempo);
-
                 // Incrementa o tempo executado do processo
                 processo_executado.tempo_executado++;
-
                 // Verifica se o processo foi concluído
                 if (processo_executado.tempo_executado >= processo_executado.tempo_servico) {
                     processos_concluidos++;
@@ -138,21 +109,15 @@ int main(int argc, char *argv[]) {
             }
         }
 
-    
+        // BAIXA PRIORIDADE
         // Verifica se há processos na fila de baixa prioridade
         else if (!fila_vazia(fila_baixa_prioridade)) {
             // Remove o primeiro processo da fila de baixa prioridade
             Processo processo_executado = remover(fila_baixa_prioridade);
-
-             
             fez_io=FALSE;
-            int teste_baixa=FALSE; // teste
             for(int i=0;i<3;i++){ // talvez tirar?
-                if (teste_baixa==TRUE){
-                    break;
-                }
                 if(processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]){
-                    printf("TEMPO EXECUTADO = %d\n", processo_executado.tempo_executado);
+                    //printf("TEMPO EXECUTADO = %d\n", processo_executado.tempo_executado);
                     fez_io =TRUE;
                     switch(i) { //direcionar tipo de IO
                         case DISCO: // A
@@ -164,10 +129,8 @@ int main(int argc, char *argv[]) {
                                 printf("Processo ID %d movido da BAIXA para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
                                 // teste:
-                                printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io);
-                                teste_baixa=TRUE;
+                                //printf("Valor em .tempo_retorno_io: %d\n",processo_executado.tempo_retorno_io);
                                 break;                
-
                         case FITA: // B
                                 // Move o processo para a fila de I/O
                                 processo_executado.tempo_retorno_io = tempo + TEMPO_FITA;
@@ -176,7 +139,6 @@ int main(int argc, char *argv[]) {
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido da BAIXA para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
-                                teste_baixa=TRUE;
                                 break;
                         case IMPRESSORA: // C
                                 // Move o processo para a fila de I/O
@@ -186,13 +148,10 @@ int main(int argc, char *argv[]) {
                                 inserir(fila_io, processo_executado);
                                 printf("Processo ID %d movido da BAIXA para a Fila de I/O após executar por %d ciclos\n", 
                                             processo_executado.id, processo_executado.tempo_executado);
-                                teste_baixa=TRUE;
                                 break;
                     }
                 }   
             }
-            
-
             if(fez_io == FALSE){
                 // Se não precisar de I/O, continua a execução normal
                 printf("Processo ID %d está sendo executado na Fila de Baixa Prioridade em t=%d\n", processo_executado.id, tempo);
@@ -212,34 +171,59 @@ int main(int argc, char *argv[]) {
             
         }
 
-        // Verifica se há processos na fila de I/O
-        if (!fila_vazia(fila_io)) {
-            int tamanho_io = tamanho_fila(fila_io);
-            int n = 0;
-            while(n++ < tamanho_io) {
-                Processo processo = remover(fila_io);
-                if (tempo == processo.tempo_retorno_io) {
-                    printf("tempo igual ao retorno do i/o\n");
-                    if (processo.atual_io == 0) {
-                        inserir(fila_baixa_prioridade, processo);
-                    } else {
-                        inserir(fila_alta_prioridade, processo);
-                    }
-                    printf("Processo ID %d voltou do I/O em t=%d\n", processo.id, tempo);
-                } else {
-                    inserir(fila_io, processo);
-                }
-            }
-            
-        }
+        // Tratar processos na fila de I/O
+        tratar_io(fila_io, fila_alta_prioridade, fila_baixa_prioridade, tempo);
+
         tempo++;
     }
-    printf("Tempo TOTAL = %d\n", tempo);
-
+    printf("Escalonador Encerrou depois de %d ut\n", tempo);
     /* ESCALONADOR ACIMA */
-
   return 0;
 }
+
+
+
+
+
+
+
+
+
+void carregar_processos_iniciais(Fila* fila_alta_prioridade, Processo* processos, int num_processos, int tempo) {
+    for (int i = 0; i < num_processos; i++) {
+        if (processos[i].tempo_chegada == tempo ) {
+            inserir(fila_alta_prioridade, processos[i]);
+            printf("Processo %d chegou e foi adicionado à fila de alta prioridade em t=%d\n", processos[i].id, tempo);
+        }
+    }
+}
+
+
+
+// Função para tratar I/O
+void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, int tempo) {
+    int tamanho_io = tamanho_fila(fila_io);
+    int n = 0;
+    while(n++ < tamanho_io) {
+        Processo processo = remover(fila_io);
+        if (tempo == processo.tempo_retorno_io) {
+            //printf("tempo igual ao retorno do i/o\n");
+            if (processo.atual_io == 0) {
+                    inserir(fila_baixa_prioridade, processo);
+            } else {
+                inserir(fila_alta_prioridade, processo);
+            }
+                printf("Processo ID %d voltou do I/O em t=%d\n", processo.id, tempo);
+            } else {
+                inserir(fila_io, processo);
+            }
+    }
+}
+
+
+
+
+
 
 
 

@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 
     // Loop principal do escalonador
     while (processos_concluidos < num_processos) {
-        carregar_processos_iniciais(fila_alta_prioridade, processos, num_processos, tempo);
+/*OK*/  carregar_processos_iniciais(fila_alta_prioridade, processos, num_processos, tempo); 
 
         if (!fila_vazia(fila_alta_prioridade)) {
             Processo processo = remover(fila_alta_prioridade);
