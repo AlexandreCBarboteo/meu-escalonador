@@ -3,10 +3,14 @@ tempo = 2 --> Io tipo A (3ut) --> retornar tempo=5
 
 tempo == processo_tempo_retorno_IO 
 
-
-
-
-
 ALTERAR:
 reduzir arrays --> um array indica o tempo de inicio IO. Cada posicao do array indica o tipo array
 colocar num laco for
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Arquivo
+id tempo_chegada tempo_servico tempo_inicio_io[3] 
+1 0 5 1 0 0
+2 0 5 2 0 0
+3 0 8 0 0 4
+- - - - - - - - - - - - - - - - - - - - - - - - - - - -

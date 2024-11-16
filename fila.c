@@ -62,3 +62,44 @@ void exibir_fila(Fila* fila) {
         atual = atual->prox;
     }
 }
+
+/*
+Node* remover_io(Node* head) {
+    // Caso a lista esteja vazia
+    if (head == NULL) {
+        return NULL;
+    }
+    
+    // Caso o nó a ser removido seja o primeiro (cabeça da lista)
+    if (head->processo->tempo_retorno_io == tempo) {
+        Node* temp = head;
+        head = head->proximo;  // Atualiza a cabeça para o próximo nó
+        return temp; // Retorna o nó que foi apagado
+    }
+    
+    // Caso o nó a ser removido não seja o primeiro
+    Node* atual = head;
+    while (atual->proximo != NULL) {
+        if (atual->proximo->processo->tempo_retorno_io == tempo) {
+            Node* temp = atual->proximo;
+            atual->proximo = atual->proximo->proximo;  // Atualiza o ponteiro do nó anterior
+            return temp; // Retorna o nó que foi apagado
+        }
+        atual = atual->proximo;
+    }
+    
+    return NULL;  // Se o valor não foi encontrado, retorna a lista original
+}
+
+*/
+
+// Função auxiliar para calcular o tamanho da fila (opcional)
+int tamanho_fila(Fila* fila) {
+    int contador = 0;
+    No* atual = fila->frente;
+    while (atual != NULL) {
+        contador++;
+        atual = atual->prox;
+    }
+    return contador;
+}
