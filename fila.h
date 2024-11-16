@@ -8,7 +8,7 @@
         int tempo_chegada;
         int tempo_servico;
         int tempo_executado;
-        //int prioridade;
+        int fila_origem;
         //int io[3];               // -->  |A|B|C|
         int tempo_inicio_io[3];       // |2|*|5|
         int tempo_retorno_io;  
