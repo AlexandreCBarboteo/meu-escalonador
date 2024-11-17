@@ -32,6 +32,7 @@
     Fila* criar_fila();
     int fila_vazia(Fila* fila);
     void inserir(Fila* fila, Processo processo);
+    void furar_fila(Fila* fila, Processo processo);
     Processo remover(Fila* fila);
     void exibir_fila(Fila* fila);
     int tamanho_fila(Fila* fila);

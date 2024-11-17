@@ -29,6 +29,27 @@ void inserir(Fila* fila, Processo processo) {
     }
 }
 
+// Insere um processo no início da fila
+void furar_fila(Fila* fila, Processo processo) {
+    No* novo_no = (No*)malloc(sizeof(No));
+    if (novo_no == NULL) {
+        printf("Erro ao alocar memória!\n");
+        return;
+    }
+    
+    novo_no->processo = processo;
+    novo_no->prox = fila->frente; // Aponta para o antigo primeiro nó
+
+    // Atualiza a frente para o novo nó
+    fila->frente = novo_no;
+
+    // Se a fila estava vazia, traseira também precisa ser atualizada
+    if (fila->traseira == NULL) {
+        fila->traseira = novo_no;
+    }
+}
+
+
 // Função para remover um processo da fila
 Processo remover(Fila* fila) {
     if (fila_vazia(fila)) {

@@ -17,9 +17,13 @@
 #define ALTA 0    // ADICIONAR COMENTARIO DEPOIS
 #define BAIXA 1
 
+#define ALTA_BAIXA 1
+#define ALTA_ALTA 2
+
 int ler_processos(const char* nome_arquivo, Processo** processos);
 void carregar_processos_iniciais(Fila* fila_alta_prioridade, Processo* processos, int num_processos, int tempo);
-void executar_processo(Processo* processo, Fila* fila_origem, Fila* fila_destino, Fila* fila_io, int tempo, int* processos_concluidos,/**/ Processo* processos, int num_processos);
+void executar_processo(Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, Fila* fila_io, int tempo, int* processos_concluidos,
+                        /**/ Processo* processos, int num_processos);
 void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, int tempo);
 int verificar_processos_iniciais(Processo* processos, int num_processos, int tempo);
 
@@ -28,6 +32,7 @@ int main(int argc, char *argv[]) {
     int processos_concluidos = 0;
     int fez_io = FALSE;
     int num_processos;
+    int sentido;
 
     // Criacao das filas
     Fila *fila_alta_prioridade = criar_fila();
@@ -53,28 +58,16 @@ int main(int argc, char *argv[]) {
         // Executar processo de alta prioridade, se disponível
         if (!fila_vazia(fila_alta_prioridade)) {
             // Remove o primeiro processo da fila para simular a execução
-            Processo processo_executado = remover(fila_alta_prioridade);
-            processo_executado.fila_origem = ALTA;
-            if (fila_vazia(fila_alta_prioridade)){ // Volta para a fila de alta prioridade após ser executado
-                if (verificar_processos_iniciais(processos, num_processos, tempo)&& tempo!=0){
-                    printf("VERIFIQUEI PROCESO NOVO\n");
-                    executar_processo(&processo_executado, fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, 
-                                &processos_concluidos, /**/processos, num_processos);
-                }
-                else {
-                    executar_processo(&processo_executado, fila_alta_prioridade, fila_alta_prioridade, fila_io, tempo, 
-                                &processos_concluidos, /**/processos, num_processos);
-                }
-            }
-            else {
-                executar_processo(&processo_executado, fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, 
+            //Processo processo_executado = remover(fila_alta_prioridade);
+            //processo_executado.fila_origem = ALTA;           
+            executar_processo_alta( fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, 
                             &processos_concluidos,/**/processos, num_processos);
-            }
+            
         } else if (!fila_vazia(fila_baixa_prioridade)) {
             // Executar processo de baixa prioridade, se não houver de alta
-            Processo processo_executado = remover(fila_baixa_prioridade);
-            processo_executado.fila_origem = BAIXA;
-            executar_processo(&processo_executado, fila_baixa_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos,
+            //Processo processo_executado = remover(fila_baixa_prioridade);
+            //processo_executado.fila_origem = BAIXA;
+            executar_processo( fila_baixa_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos,
                         /**/processos, num_processos);
         }
 
@@ -106,11 +99,14 @@ int verificar_processos_iniciais(Processo* processos, int num_processos, int tem
     return FALSE;
 }
 
-void executar_processo(Processo* processo_ptr, Fila* fila_origem, Fila* fila_destino, Fila* fila_io, int tempo, int* processos_concluidos,
-                                        /**/Processo* processos, int num_processos) {
+void executar_processo(Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, Fila* fila_io, int tempo, int* processos_concluidos,
+                        /**/ Processo* processos, int num_processos) {
     // Cria uma cópia local do processo para eliminar o uso de "->"
-    Processo processo_executado = *processo_ptr;
     int fez_io = FALSE;
+Processo processo_executado = remover(fila_alta_prioridade);
+    if (verificar_processos_iniciais(processos, num_processos, tempo)){
+                
+    }
 
     for (int i = 0; i < 3; i++) {
         if (processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]) {
@@ -139,15 +135,7 @@ void executar_processo(Processo* processo_ptr, Fila* fila_origem, Fila* fila_des
     }
 
     if (!fez_io) {
-        /*
-        if (verificar_processos_iniciais(processos, num_processos, tempo)){
-            if (tamanho_fila(fila_alta_prioridade)==1){
-                inserir(fila_baixa_prioridade, processo_executado);
-                Processo processo_executado =  remove(fila_alta_prioridade);
-            }
-
-        }
-        */
+        Processo processo_executado = remover(fila_alta_prioridade);
         processo_executado.tempo_executado++;
         printf("Processo ID %d está sendo executado na Fila de %s prioridade\n", 
             processo_executado.id, 
@@ -159,12 +147,16 @@ void executar_processo(Processo* processo_ptr, Fila* fila_origem, Fila* fila_des
                 processo_executado.id,
                 processo_executado.tempo_executado);
         } else {
+            /*
+            if (verificar_processos_iniciais(processos, num_processos, tempo)){
+                
+            }
+            */
             
-            inserir(fila_destino, processo_executado);
+            //inserir(fila_destino, processo_executado);
         }
     }
     // Atualiza o processo original (de volta para o ponteiro)
-    *processo_ptr = processo_executado;
 }
 
 // Função para tratar I/O
