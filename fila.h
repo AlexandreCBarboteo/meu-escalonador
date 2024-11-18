@@ -15,7 +15,8 @@
         int atual_io; // juntar 
         
     } Processo;
-    
+
+
     // Definição da struct Nó da fila (onde o processo e o próximo nó são armazenados)
     typedef struct No {
         Processo processo;  // Processo da fila

@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
             // Remove o primeiro processo da fila para simular a execução
             //Processo processo_executado = remover(fila_alta_prioridade);
             //processo_executado.fila_origem = ALTA;           
-            executar_processo_alta( fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, 
+            executar_processo( fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, 
                             &processos_concluidos,/**/processos, num_processos);
             
         } else if (!fila_vazia(fila_baixa_prioridade)) {

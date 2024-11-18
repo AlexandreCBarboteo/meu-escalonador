@@ -1,0 +1,30 @@
+tempo = 0;
+while principal
+{   // tempo incrementa dentro da funcao executar_processo alta ou baixa
+    se (!fila_vazia(fila_alta_prioridade))
+        executar_processo_alta(fila_alta_prioridade, fila_baixa_prioridade, fila_io_alta, &tempo, &processos_concluidos,
+                        processos, num_processos, fila_io_baixa);
+    senao se (!fila_vazia(fila_baixa_prioridade))
+        executar_processo_baixa(fila_alta_prioridade, fila_baixa_prioridade, fila_io_alta, tempo, &processos_concluidos,
+                        processos, num_processos, fila_io_baixa);
+        
+}
+
+
+executar_processo_alta()
+    executa o processo
+    tempo++
+    se faz io
+        faz as configuracoes necessarias relacionadas ao tempo executado
+        vai pra fila de io
+    verifica processos novos e io alta         // "pular_fila()"
+    (agr tudo ta arrumado)
+
+executar_processo_baixa()
+    executa o processo (aqui, e garantido que ele nao fez io, nao chegaram ios, nem tem novos nesse momento)
+    tempo++
+    se faz io
+        faz as configuracoes necessarias relacionadas ao tempo executado
+        vai pra fila de io
+    verifica processos io  baixa        // "pular_fila()"
+    (agr tudo ta arrumado)

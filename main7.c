@@ -62,11 +62,11 @@ int main(int argc, char *argv[]) {
         // Lida com a fila de baixa prioridade, se disponível
         if (fila_vazia(fila_alta_prioridade) && !fila_vazia(fila_baixa_prioridade)) {
             executar_processo_baixa(fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos,
-        tratar_io(fila_io, fila_alta_prioridade, fila_baixa_prioridade, tempo);
                         /**/ processos, num_processos);
         }
 
         // Tratar processos na fila de I/O
+        tratar_io(fila_io, fila_alta_prioridade, fila_baixa_prioridade, tempo);
         //printf("\n");
         tempo++;
     }
