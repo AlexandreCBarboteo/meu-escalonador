@@ -13,6 +13,7 @@
         int tempo_inicio_io[3];       // |2|*|5|
         int tempo_retorno_io;  
         int atual_io; // juntar 
+        int controle_inicio_io;
         
     } Processo;
 
