@@ -73,15 +73,16 @@ Processo remover(Fila* fila) {
 // Função para exibir os processos na fila
 void exibir_fila(Fila* fila) {
     if (fila_vazia(fila)) {
-        printf("Fila vazia!\n");
+        printf("  Fila vazia!\n");
         return;
     }
 
     No* atual = fila->frente;
     while (atual != NULL) {
-        printf("Processo ID: %d\n", atual->processo.id);
+        printf("  P%d", atual->processo.id);
         atual = atual->prox;
     }
+    printf("\n");
 }
 
 /*
