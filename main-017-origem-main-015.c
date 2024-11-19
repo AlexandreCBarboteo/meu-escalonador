@@ -26,8 +26,7 @@ void executar_processo_baixa(Fila* fila_alta_prioridade, Fila* fila_baixa_priori
 int verificar_processos_iniciais(Processo* processos, int num_processos, int tempo);
 void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, int* tempo);
 
-void olhar_io_isolado_alta(Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, Fila* fila_io, int tempo, int* processos_concluidos,
-                        /**/ Processo* processos, int num_processos, int * alta_concluido);
+void olhar_io_isolado_alta(Fila* fila_alta_prioridade, Fila* fila_io, int* tempo);
 void olhar_io_isolado_baixa(Fila* fila_baixa_prioridade, Fila* fila_io, int* tempo);
 
 int main(int argc, char *argv[]) {
@@ -58,36 +57,25 @@ int main(int argc, char *argv[]) {
         alta_concluido=FALSE;
         printf("-------------------\n");
         printf("INSTANTE %d:\n", tempo);
+        // Tratar processos na fila de I/O
+        if (tempo!=0)tratar_io(fila_io, fila_alta_prioridade, fila_baixa_prioridade, &tempo);
         carregar_processos_iniciais(fila_alta_prioridade, processos, num_processos, tempo);
 
-        /*
-        if(!fila_vazia(fila_alta_prioridade)&&tempo!=0){
-            olhar_io_isolado_alta(fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos,
-                         processos, num_processos, &alta_concluido);
-        }
-        if(!fila_vazia(fila_baixa_prioridade)){
-            olhar_io_isolado_baixa(fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos,
-                         processos, num_processos);
-        }
-        */
-        tratar_io(fila_io, fila_alta_prioridade, fila_baixa_prioridade, &tempo);
-        // Tratar processos na fila de I/O
         
         // Executar processo de alta prioridade, se disponível
         if (!fila_vazia(fila_alta_prioridade)) {
+            printf("entrei fila alta\n");
             executar_processo_alta(fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos,
                         /**/ processos, num_processos, &alta_concluido);
             
         } 
         if (fila_vazia(fila_alta_prioridade) && !fila_vazia(fila_baixa_prioridade) && !alta_concluido) {
+            printf("entrei fila baixa\n");
             executar_processo_baixa(fila_alta_prioridade, fila_baixa_prioridade, fila_io, tempo, &processos_concluidos,
                         /**/ processos, num_processos);
         }
-
         //printf("\n");
         tempo++;
-        
-        
     }
     printf("Escalonador Encerrou depois de %d ut\n", /*--*/tempo);
     /* FIM ESCALONADOR */
@@ -97,7 +85,7 @@ int main(int argc, char *argv[]) {
 void carregar_processos_iniciais(Fila* fila_alta_prioridade, Processo* processos, int num_processos, int tempo) {
     for (int i = 0; i < num_processos; i++) {
         if (processos[i].tempo_chegada == tempo ) {
-            inserir(fila_alta_prioridade, processos[i]);
+            furar_fila(fila_alta_prioridade, processos[i]);
             printf("Processo %d chegou e foi adicionado à fila de alta prioridade\n", processos[i].id);
         }
     }
@@ -117,6 +105,7 @@ void executar_processo_alta(Fila* fila_alta_prioridade, Fila* fila_baixa_priorid
     
     int fez_io = FALSE;
     Processo processo_executado = remover(fila_alta_prioridade);
+    printf("QUEM SOU EU NA EXECUÇÂO DA ALTA? PROCESSO %d\n",processo_executado.id);
     for (int i = 0; i < 3; i++) {
         if (processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]) {
             switch (i) {
@@ -149,11 +138,18 @@ void executar_processo_alta(Fila* fila_alta_prioridade, Fila* fila_baixa_priorid
     }
 
     if (!fez_io) {
-        if (verificar_processos_iniciais(processos, num_processos, tempo) && tempo!=0){
-            inserir(fila_baixa_prioridade, processo_executado);
-            processo_executado =  remover(fila_alta_prioridade); // Para executar o NOVO
+        
+        //if (verificar_processos_iniciais(processos, num_processos, tempo) && tempo!=0){
+        if (processo_executado.tempo_executado==0){   
+            printf("Verifiquei Processo Novo\n");            
+            if (!fila_vazia(fila_alta_prioridade)){ // MUDEI AQUI
+                Processo processo_executado_seguinte =  remover(fila_alta_prioridade); // Para executar o NOVO
+                inserir(fila_baixa_prioridade, processo_executado_seguinte);
+            }            
             printf("Oi! NOVO Processo ID %d aqui\n", processo_executado.id);
+        
         }
+        
         processo_executado.tempo_executado++;
         printf("Processo ID %d está sendo executado na Fila de ALTA prioridade\n", processo_executado.id);
         
@@ -164,9 +160,11 @@ void executar_processo_alta(Fila* fila_alta_prioridade, Fila* fila_baixa_priorid
                 processo_executado.id,
                 processo_executado.tempo_executado);
         } else if (fila_vazia(fila_alta_prioridade)) { // retorna true se estiver vazia
+            printf("A fila de alta está vazia. Processo %d reinserido na ALTA\n", processo_executado.id);
             // Mantém o processo na fila de Alta Prioridade se ainda não foi concluído
             inserir(fila_alta_prioridade, processo_executado);
         } else {
+            printf("A fila de alta não está vazia. Processo %d preemptado para BAIXA\n", processo_executado.id);
             // Insere o processo na fila de Baixa Prioridade se ainda não foi concluído
             inserir(fila_baixa_prioridade, processo_executado);
         }
@@ -198,7 +196,7 @@ void executar_processo_baixa(Fila* fila_alta_prioridade, Fila* fila_baixa_priori
             }
             processo_executado.atual_io = i;
             processo_executado.tempo_inicio_io[i] = NONE; // Prevenir loops infinitos
-            //printf("Valor do controle inicio fora do break: %d\n",processo_executado.controle_inicio_io);
+            printf("Valor do controle inicio fora do break: %d\n",processo_executado.controle_inicio_io);
             inserir(fila_io, processo_executado);
             printf("Processo ID %d movido da fila de Baixa para I/O (tipo %s) após executar por %d ciclos.\n",
                 processo_executado.id,
@@ -224,8 +222,7 @@ void executar_processo_baixa(Fila* fila_alta_prioridade, Fila* fila_baixa_priori
     } 
 }
 
-void olhar_io_isolado_alta(Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, Fila* fila_io, int tempo, int* processos_concluidos,
-                        /**/ Processo* processos, int num_processos, int * alta_concluido){
+void olhar_io_isolado_alta(Fila* fila_alta_prioridade, Fila* fila_io, int* tempo){
     printf("ENTREI EM OLHAR_IO_ISOLADAMENTE ALTA\n");
     int fez_io = FALSE;
     Processo processo_executado = remover(fila_alta_prioridade);
@@ -233,33 +230,38 @@ void olhar_io_isolado_alta(Fila* fila_alta_prioridade, Fila* fila_baixa_priorida
         if (processo_executado.tempo_executado == processo_executado.tempo_inicio_io[i]) {
             switch (i) {
             case DISCO:
-                printf("Tempo de inicio I/O = %d\n", processo_executado.tempo_inicio_io[i]);
-                processo_executado.tempo_retorno_io = tempo + TEMPO_DISCO;
+                //printf("Tempo de inicio I/O = %d\n", processo_executado.tempo_inicio_io[i]);
+                processo_executado.tempo_retorno_io = *(tempo) + TEMPO_DISCO;
                 processo_executado.controle_inicio_io = processo_executado.tempo_inicio_io[i];
-                printf("Valor do controle inicio: %d\n",processo_executado.controle_inicio_io);
+                //printf("Valor do controle inicio: %d\n",processo_executado.controle_inicio_io);
                 break;
             case FITA:
-                processo_executado.tempo_retorno_io = tempo + TEMPO_FITA;
+                processo_executado.tempo_retorno_io = *(tempo) + TEMPO_FITA;
                 processo_executado.controle_inicio_io = processo_executado.tempo_inicio_io[i];
                 break;
             case IMPRESSORA:
-                processo_executado.tempo_retorno_io = tempo + TEMPO_IMPRESSORA;
+                processo_executado.tempo_retorno_io = *(tempo) + TEMPO_IMPRESSORA;
                 processo_executado.controle_inicio_io = processo_executado.tempo_inicio_io[i];
                 break;
             }
-            processo_executado.atual_io = i;
-            processo_executado.tempo_inicio_io[i] = NONE; // Prevenir loops infinitos
-                                        printf("Valor do controle inicio fora do break: %d\n",processo_executado.controle_inicio_io);
-            inserir(fila_io, processo_executado);
-            printf("Processo ID %d movido da fila de Baixa para I/O (tipo %s) após executar por %d ciclos.\n",
+            //if (i == FITA || i == IMPRESSORA){
+                processo_executado.atual_io = i;
+                processo_executado.tempo_inicio_io[i] = NONE; // Prevenir loops infinitos
+                printf("Valor do controle inicio fora do break: %d\n",processo_executado.controle_inicio_io);
+                inserir(fila_io, processo_executado);
+                printf("Processo ID %d movido da fila de Baixa para I/O (tipo %s) após executar por %d ciclos.\n",
                 processo_executado.id,
                 (i == ALTA ? "DISCO" : (i == BAIXA ? "FITA" : "IMPRESSORA")),
                 processo_executado.tempo_executado);
-            fez_io = TRUE;
+                fez_io = TRUE;
+            // }
+            //printf("Minha viagem pelo switch case: i = %d\n",i);
             break;
         }
     }
-    furar_fila(fila_alta_prioridade,processo_executado);
+    if (!fez_io) furar_fila(fila_alta_prioridade,processo_executado);
+    printf("Saí do trata_io\n");
+    //furar_fila(fila_alta_prioridade,processo_executado);
 }
 
 // Unica função é mandar para I/O quando formos checar a volta de I/O
@@ -285,25 +287,29 @@ void olhar_io_isolado_baixa(Fila* fila_baixa_prioridade, Fila* fila_io, int* tem
                 processo_executado.controle_inicio_io = processo_executado.tempo_inicio_io[i];
                 break;
             }
-            processo_executado.atual_io = i;
-            processo_executado.tempo_inicio_io[i] = NONE; // Prevenir loops infinitos
-            //printf("Valor do controle inicio fora do break: %d\n",processo_executado.controle_inicio_io);
-            inserir(fila_io, processo_executado);
-            printf("Processo ID %d movido da fila de Baixa para I/O (tipo %s) após executar por %d ciclos.\n",
-                processo_executado.id,
-                (i == ALTA ? "DISCO" : (i == BAIXA ? "FITA" : "IMPRESSORA")),
-                processo_executado.tempo_executado);
-            fez_io = TRUE;
+            //if(i==DISCO){  // Talvez colocar dentro do Switch              
+                processo_executado.atual_io = i;
+                processo_executado.tempo_inicio_io[i] = NONE; // Prevenir loops infinitos
+                //printf("Valor do controle inicio fora do break: %d\n",processo_executado.controle_inicio_io);
+                inserir(fila_io, processo_executado);
+                printf("Processo ID %d movido da fila de Baixa para I/O (tipo %s) após executar por %d ciclos.\n",
+                    processo_executado.id,
+                    (i == ALTA ? "DISCO" : (i == BAIXA ? "FITA" : "IMPRESSORA")),
+                    processo_executado.tempo_executado);
+                fez_io = TRUE;
+            //}
+            //printf("Minha viagem pelo switch case: i = %d\n",i);
             break;
         }
     }
-    furar_fila(fila_baixa_prioridade,processo_executado);
 
-
+    if (!fez_io) furar_fila(fila_baixa_prioridade,processo_executado);
+    //furar_fila(fila_baixa_prioridade,processo_executado);
 }
 
 // Função para tratar I/O
 void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, int* tempo) {
+    //printf("Entrei em tratar_io\n");
     int tamanho_io = tamanho_fila(fila_io);
     int n = 0;
     while(n++ < tamanho_io) { // Para cada tipo de io, DISCO, FITA e IMPRESSORA
@@ -315,45 +321,102 @@ void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prior
                 
                 if(!fila_vazia(fila_baixa_prioridade)){
                     olhar_io_isolado_baixa(fila_baixa_prioridade, fila_io, tempo);
-                    Processo processo_fila_baixa = remover(fila_baixa_prioridade);
-                    furar_fila(fila_baixa_prioridade, processo_fila_baixa);
+                    //Processo processo_fila_baixa = remover(fila_baixa_prioridade);
+                    //furar_fila(fila_baixa_prioridade, processo_fila_baixa);
+                }
+
+                if(!fila_vazia(fila_alta_prioridade)){
+                    olhar_io_isolado_alta(fila_alta_prioridade, fila_io, tempo);
+                    //Processo processo_fila_alta = remover(fila_alta_prioridade);
+                    //furar_fila(fila_alta_prioridade, processo_fila_alta);
                 }
                 
                 furar_fila(fila_baixa_prioridade, processo_io);
-            } else {
-                //PARECE TER FUNCIONADO
-                //--------------------
-                if(!fila_vazia(fila_alta_prioridade)){
-                    printf("\n");
-                    olhar_io_isolado_baixa(fila_alta_prioridade, fila_io, tempo);
-                    //Processo processo_fila_baixa = remover(fila_alta_prioridade);
-                    //furar_fila(fila_alta_prioridade, processo_fila_baixa);
-                }
+            
+            } else if(processo_io.atual_io == FITA){
                 if(!fila_vazia(fila_baixa_prioridade)){
-                    printf("\n");
                     olhar_io_isolado_baixa(fila_baixa_prioridade, fila_io, tempo);
-                    //Processo processo_fila_baixa = remover(fila_alta_prioridade);
-                    //furar_fila(fila_alta_prioridade, processo_fila_baixa);
+                    //Processo processo_fila_baixa = remover(fila_baixa_prioridade);
+                    //furar_fila(fila_baixa_prioridade, processo_fila_baixa);
                 }
+
+                if(!fila_vazia(fila_alta_prioridade)){
+                    olhar_io_isolado_alta(fila_alta_prioridade, fila_io, tempo);
+                    //Processo processo_fila_alta = remover(fila_alta_prioridade);
+                    //furar_fila(fila_alta_prioridade, processo_fila_alta);
+                }
+                
+                //checa de novo se há processos na fila de alta. Se positivo, manda para fila de baixa
+                // agora o processo retorna de IO na alta
+                
                 if (!fila_vazia(fila_alta_prioridade)){
-                    printf("\n");
                     Processo processo_fila_alta = remover(fila_alta_prioridade);
-                    inserir(fila_baixa_prioridade, processo_fila_alta);
+                    if (processo_fila_alta.tempo_executado==0){ // Testa se o 1° processo da fila Alta É NOVOOOOOOO
+                        furar_fila(fila_alta_prioridade,processo_fila_alta);
+                    } 
+                    else{
+                        inserir(fila_baixa_prioridade, processo_fila_alta);
+                    }   
                 }
-                //--------------------
-                //PARECE TER FUNCIONADO
-                furar_fila(fila_alta_prioridade, processo_io);
+                
+                Processo processo_fila_alta = remover(fila_alta_prioridade);
+                if (processo_fila_alta.tempo_executado==0){ // Testa se o 1° processo da fila Alta É NOVOOOOOOO
+                        furar_fila(fila_alta_prioridade, processo_io); // io fura fila na frente do novo
+                        furar_fila(fila_alta_prioridade,processo_fila_alta); // Novo se vinga e fura fila do io
+                } 
+                else{
+                    //inserir(fila_baixa_prioridade, processo_fila_alta);
+                    furar_fila(fila_alta_prioridade, processo_io); // io fura fila e fica la
+                } 
+                //furar_fila(fila_alta_prioridade, processo_io); //Antiga forma do I/O voltar à frente da fila
+            
+            } else if (processo_io.atual_io == IMPRESSORA){
+                if(!fila_vazia(fila_baixa_prioridade)){
+                    olhar_io_isolado_baixa(fila_baixa_prioridade, fila_io, tempo);
+                    //Processo processo_fila_baixa = remover(fila_baixa_prioridade);
+                    //furar_fila(fila_baixa_prioridade, processo_fila_baixa);
+                }
+
+                if(!fila_vazia(fila_alta_prioridade)){
+                    olhar_io_isolado_baixa(fila_alta_prioridade, fila_io, tempo);
+                    //Processo processo_fila_alta = remover(fila_alta_prioridade);
+                    //furar_fila(fila_alta_prioridade, processo_fila_alta);
+                }
+                //checa de novo se há processos na fila de alta. Se positivo, manda para fila de baixa
+                // agora o processo retorna de IO na alta
+                if (!fila_vazia(fila_alta_prioridade)){
+                    Processo processo_fila_alta = remover(fila_alta_prioridade);
+                    if (processo_fila_alta.tempo_executado==0){ // Testa se o 1° processo da fila Alta É NOVOOOOOOO
+                        furar_fila(fila_alta_prioridade,processo_fila_alta);
+                    } 
+                    else{
+                        inserir(fila_baixa_prioridade, processo_fila_alta);
+                    }  
+                }
+                Processo processo_fila_alta = remover(fila_alta_prioridade);
+                if (processo_fila_alta.tempo_executado==0){ // Testa se o 1° processo da fila Alta É NOVOOOOOOO
+                        furar_fila(fila_alta_prioridade, processo_io); // io fura fila na frente do novo
+                        furar_fila(fila_alta_prioridade,processo_fila_alta); // Novo se vinga e fura fila do io
+                } 
+                else{
+                    //inserir(fila_baixa_prioridade, processo_fila_alta);
+                    furar_fila(fila_alta_prioridade, processo_io); // io fura fila e fica la
+                } 
+                //furar_fila(fila_alta_prioridade, processo_io); //Antiga forma do I/O voltar à frente da fila
+                
             }
-                printf("Processo ID %d voltou do I/O (tipo %s)\n", 
+    
+            printf("Processo ID %d voltou do I/O (tipo %s)\n", 
                     processo_io.id, 
-                    (processo_io.atual_io == DISCO ? "DISCO" : (processo_io.atual_io == FITA ? "FITA" : "IMPRESSORA")));
-            } else {
-                inserir(fila_io, processo_io);
-            }
+                   (processo_io.atual_io == DISCO ? "DISCO" : (processo_io.atual_io == FITA ? "FITA" : "IMPRESSORA")));
+        } else {
+            inserir(fila_io, processo_io);
+        }
     }
 }
 
 // Funcao para ler os processos de um arquivo txt
+// Ela também inicializa os campos com valores iniciais 0 ou NONE
 int ler_processos(const char* nome_arquivo, Processo** processos) {
     FILE* arquivo = fopen(nome_arquivo, "r");
     if (arquivo == NULL) {

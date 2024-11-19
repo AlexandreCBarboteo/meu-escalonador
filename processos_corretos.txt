@@ -10,26 +10,55 @@
 1 0 4 -1 2 -1
 2 1 4 -1 3 -1
 
-
-
-
-
-TALVEZ - QUASE CERTEZA
----------
 1 0 6 -1 3 -1
 2 2 5 -1 2 -1
-------
-TALVEZ - QUASE CERTEZA
-------
+
 1 0 3 2 -1 -1
 2 1 4 3 -1 -1
------------
-TALVEZ - QUASE CERTEZA
+
 1 0 4 -1 -1 2
 2 1 4 -1 -1 3
-------------
 
 
+
+FALTA TESTAR MANUALMENTE - PARECE CORRETÍSSIMO
+-------------
+1 0 4 -1 -1 -1
+2 1 4 -1 -1 -1
+3 2 4 -1 -1 -1
+
+1 0 4 -1 -1 -1
+2 1 4 -1 -1 -1
+3 2 4 -1 -1 -1
+4 3 4 -1 -1 -1
+
+1 0 4 -1 -1 -1
+2 1 4 -1 -1 -1
+3 2 4 -1 -1 -1
+4 3 4 -1 -1 -1
+5 4 4 -1 -1 -1
+
+1 0 4 -1 -1 -1
+2 1 4 -1 -1 -1
+3 2 4 1 -1 -1
+
+1 0 4 -1 -1 -1
+2 1 4 -1 -1 -1
+3 2 4 3 -1 -1
+
+
+
+-------------
+
+QUASE CORRETO --> preempção fracassa quando ocorre I/O no P1
+-------------
+
+Erro Execução processos - FAZER MANUALMENTE
+-------------
+1 0 4  1 -1 -1
+2 3 4 -1 -1 -1
+3 4 4 -1 -1 -1
+4 5 4 -1 -1 -1
 
 TALVEZ - FALTAR TESTAR MANUALMENTE
 -------------
@@ -41,4 +70,49 @@ TALVEZ - FALTAR TESTAR MANUALMENTE
 1 0 4 -1 -1 3
 2 1 4 -1 -1 2
 -------------
+TALVEZ - FALTAR TESTAR MANUALMENTE
+1 0 4 -1 -1 -1
+2 2 4 -1 2 3
+-------------
+TALVEZ - FALTAR TESTAR MANUALMENTE
+1 0 4 -1 -1 3
+2 2 4 -1 2 3
+------------
+1 0 4 -1 2 3
+2 2 4 -1 2 3
+------------
+
+
+
+
+------------
+TESTAR:
+
+
+
+--------------
+1 0 4 1 -1 -1
+2 2 4 -1 -1 2
+
+1 0 4 1 -1 -1
+2 2 4 -1 -1 -1
+--------------
+
+
+Erro Porque Chegada P2 coincidiu I/O P1
+-----------------------------------
+1 0 2 1 -1 -1
+2 1 3 -1 -1 -1
+
+
+DEU ERRADO NO FINAL
+-------------
+1 0 4 -1 2 3
+2 2 4 1 2 3
+
+ERRO - TESTAR MELHOR
+1 0 4 -1 1 2
+2 2 4 -1 2 3
+3 6 3 1 -1 -1
+
 

@@ -7,7 +7,7 @@
 #define IMPRESSORA 2
 
 #define TEMPO_DISCO 1 // Usado para saber quando o processo deve retornar do I/O
-#define TEMPO_FITA 1
+#define TEMPO_FITA 2
 #define TEMPO_IMPRESSORA 1
 
 #define FALSE 0 
@@ -306,7 +306,7 @@ void olhar_io_isolado_baixa(Fila* fila_baixa_prioridade, Fila* fila_io, int* tem
 void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prioridade, int* tempo) {
     int tamanho_io = tamanho_fila(fila_io);
     int n = 0;
-    while(n++ < tamanho_io) { // Para cada tipo de io, DISCO, FITA e IMPRESSORA
+    while(n++ < tamanho_io) {
         Processo processo_io = remover(fila_io);
         if (*(tempo) == processo_io.tempo_retorno_io) {
             //printf("tempo igual ao retorno do i/o\n");
@@ -324,19 +324,16 @@ void tratar_io(Fila* fila_io, Fila* fila_alta_prioridade, Fila* fila_baixa_prior
                 //PARECE TER FUNCIONADO
                 //--------------------
                 if(!fila_vazia(fila_alta_prioridade)){
-                    printf("\n");
                     olhar_io_isolado_baixa(fila_alta_prioridade, fila_io, tempo);
                     //Processo processo_fila_baixa = remover(fila_alta_prioridade);
                     //furar_fila(fila_alta_prioridade, processo_fila_baixa);
                 }
                 if(!fila_vazia(fila_baixa_prioridade)){
-                    printf("\n");
                     olhar_io_isolado_baixa(fila_baixa_prioridade, fila_io, tempo);
                     //Processo processo_fila_baixa = remover(fila_alta_prioridade);
                     //furar_fila(fila_alta_prioridade, processo_fila_baixa);
                 }
                 if (!fila_vazia(fila_alta_prioridade)){
-                    printf("\n");
                     Processo processo_fila_alta = remover(fila_alta_prioridade);
                     inserir(fila_baixa_prioridade, processo_fila_alta);
                 }
